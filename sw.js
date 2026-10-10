@@ -1,7 +1,7 @@
 // 练习打卡 PWA 离线缓存
 // 首页(index.html)用「网络优先」：在线时总是取最新版，离线时才回退缓存；
 // 静态资源(图标/manifest)用「缓存优先」：快且稳定。
-var CACHE = "lianxi-v2";
+var CACHE = "lianxi-v3";
 var FILES = ["./", "./index.html", "./manifest.json", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./favicon-32.png"];
 self.addEventListener("install", function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(FILES);}).then(function(){return self.skipWaiting();}));
