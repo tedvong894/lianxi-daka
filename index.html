@@ -339,7 +339,7 @@
       '<div class="row"><button class="btn ghost" data-act="genBank">✨ AI 直接出题</button>'+
       '<button class="btn ghost" data-act="importBankFile">📥 导入题库文件</button>'+
       '<button class="btn" data-act="newBank">＋ 新建并导入</button></div></div>'+
-      '<p class="muted small" style="margin:8px 0 0">「📥 导入题库文件」= 直接载入 .json 题库（自带年级/学科，推荐：由 AI 按你的试卷生成后导入）。「AI 直接出题」= 按知识点现编（省事，但务必核对后入库）。</p>'+
+      '<p class="muted small" style="margin:8px 0 0">「📥 导入题库文件」只支持 <b>.json</b> 题库文件。「AI 直接出题」= 按知识点现编（省事，但务必核对后入库）。<br>Word / PDF / 图片等原始资料：请到某个题库的「管理 → 批量导入」上传，或先转成 .json。</p>'+
       '<input type="file" id="bankFile" accept=".json" style="display:none">'+items+'</div>';
     app.innerHTML=html;
   }
