@@ -837,8 +837,11 @@
     else if(act==="doGen"){doGen();}
     else if(act==="confirmGen"){confirmGen();}
   });
-  document.getElementById("impFile").addEventListener("change",fileChosen);
-  app.addEventListener("change",function(e){if(e.target&&e.target.id==="bankFile")handleBankFile(e);});
+  app.addEventListener("change",function(e){
+    var t=e.target;if(!t)return;
+    if(t.id==="bankFile")handleBankFile(e);
+    else if(t.id==="impFile")fileChosen(e);
+  });
   document.getElementById("modal").addEventListener("click",function(e){if(e.target.id==="modal")closeModal();});
 
   // 初始化
