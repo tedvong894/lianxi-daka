@@ -50,6 +50,8 @@
   button.btn.plain{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:500}
   button.btn.danger{background:var(--red-soft);color:var(--red)}
   button.btn:active{transform:translateY(1px)}
+  button.btn,button.chip,.opt,nav button{touch-action:manipulation;-webkit-appearance:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+  button.btn:disabled,button.chip:disabled,.btn[disabled]{opacity:.45;cursor:not-allowed}
   .muted{color:var(--muted);font-size:13px}
   .title{font-size:15px;font-weight:600;margin:0 0 10px}
   .qtext{font-size:17px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
@@ -254,10 +256,10 @@
       '<div class="row between" style="margin-top:6px"><span class="muted">未掌握错题</span><span class="badge r">'+wrong+' 题</span></div>'+
       '<div style="height:12px"></div>'+
       '<div class="row">'+
-        '<button class="btn" data-act="startSession" data-mode="due" '+((due.length||total)?"":"disabled")+'>开始练习（待复习优先）</button>'+
-        '<button class="btn ghost" data-act="startSession" data-mode="all" '+(total?"":"disabled")+'>全部重练</button>'+
+        '<button class="btn" data-act="startSession" data-mode="due">开始练习（待复习优先）</button>'+
+        '<button class="btn ghost" data-act="startSession" data-mode="all">全部重练</button>'+
       '</div>'+
-      (total===0?'<p class="muted small" style="margin-top:10px">题库为空，请先到「题库」导入或录入题目。</p>':'')+
+      (total===0?'<p class="muted small" style="margin-top:10px">当前范围还没有题目 → 去「题库」点「📥 导入题库文件」导入题库；或先选一个已有题目的年级/学科。</p>':'')+
     '</div>'+
     '<div class="card"><p class="muted small">练习机制：每题做完看答案与解析，自己判对错 → 错题按 1/2/4/7/15 天间隔自动重推，连续做对进入下一箱，第 5 箱做对即掌握。</p></div>';
     app.innerHTML=html;
