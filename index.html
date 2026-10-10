@@ -59,6 +59,9 @@
   .opt.sel{border-color:var(--brand);background:var(--brand-soft)}
   .opt.correct{border-color:var(--green);background:var(--green-soft)}
   .opt.wrong{border-color:var(--red);background:var(--red-soft)}
+  #padWrap{margin-top:10px}
+  #pad{width:100%;height:260px;display:block;touch-action:none;-webkit-user-select:none;user-select:none;
+    border:1px solid var(--line);border-radius:10px;background:#fff;cursor:crosshair}
   .answer-box{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;display:none}
   .answer-box.show{display:block}
   .badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:var(--brand-soft);color:var(--brand);margin-left:6px}
@@ -293,6 +296,10 @@
       '<div style="height:10px"></div>'+
       '<div class="qtext" id="stem">'+esc(q.stem)+'</div>'+speak+
       (optsHtml?optsHtml:'<div style="height:10px"></div><input id="ansInput" placeholder="在此输入你的答案…">')+
+      '<div style="margin-top:10px"><button class="chip sm" data-act="togglePad">✍️ 手写板</button> <span class="muted small">用手指或触控笔书写（演算/书写都行）</span></div>'+
+      '<div id="padWrap" style="display:none"><canvas id="pad"></canvas>'+
+        '<div class="row" style="margin-top:8px"><button class="chip sm" data-act="clearPad">清除</button>'+
+        '<button class="chip sm" data-act="togglePad">收起手写板</button></div></div>'+
       '<div style="height:12px"></div>'+
       '<div class="answer-box" id="ansBox">'+
         '<p class="title" style="margin:0 0 6px">正确答案</p>'+
@@ -787,6 +794,50 @@
     var u=new SpeechSynthesisUtterance(item.q.stem);u.lang="en-US";u.rate=0.9;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
   }
 
+  /* ---------- 手写板（手指/触控笔） ---------- */
+  function setupPad(){
+    var cv=document.getElementById("pad");if(!cv||cv.dataset.init)return;
+    var w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+    cv.dataset.init="1";
+    var dpr=window.devicePixelRatio||1;
+    cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+    var ctx=cv.getContext("2d");
+    ctx.scale(dpr,dpr);
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);
+    ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#2b2f36";
+    var drawing=false,last=null;
+    function pos(e){var r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+    function down(e){drawing=true;last=pos(e);try{cv.setPointerCapture(e.pointerId);}catch(_){}
+      ctx.beginPath();ctx.arc(last.x,last.y,0.6,0,Math.PI*2);ctx.fillStyle="#2b2f36";ctx.fill();e.preventDefault();}
+    function move(e){if(!drawing)return;var p=pos(e);
+      ctx.lineWidth=e.pointerType==="pen"?(e.pressure>0?1+e.pressure*4:3):3.2;
+      ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;e.preventDefault();}
+    function up(e){drawing=false;e.preventDefault();}
+    cv.addEventListener("pointerdown",down);
+    cv.addEventListener("pointermove",move);
+    cv.addEventListener("pointerup",up);
+    cv.addEventListener("pointerleave",function(){drawing=false;});
+    cv.addEventListener("pointercancel",function(){drawing=false;});
+    // 兜底：老浏览器无 Pointer 事件时用鼠标/触摸
+    if(!window.PointerEvent){
+      cv.addEventListener("touchstart",function(e){var t=e.touches[0];down(t);},{passive:false});
+      cv.addEventListener("touchmove",function(e){var t=e.touches[0];move(t);},{passive:false});
+      cv.addEventListener("touchend",function(){drawing=false;},{passive:false});
+      cv.addEventListener("mousedown",down);cv.addEventListener("mousemove",move);cv.addEventListener("mouseup",up);
+    }
+  }
+  function togglePad(){
+    var wrap=document.getElementById("padWrap");if(!wrap)return;
+    var show=wrap.style.display==="none";
+    wrap.style.display=show?"block":"none";
+    if(show)requestAnimationFrame(setupPad);
+  }
+  function clearPad(){
+    var cv=document.getElementById("pad");if(!cv)return;
+    var ctx=cv.getContext("2d");
+    ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle="#fff";ctx.fillRect(0,0,cv.width,cv.height);ctx.restore();
+  }
+
   /* ---------- 事件委托 ---------- */
   function openModal(){document.getElementById("modal").classList.add("show");}
   function closeModal(){document.getElementById("modal").classList.remove("show");}
@@ -823,6 +874,8 @@
     else if(act==="importData"){importData();}
     else if(act==="loadSample"){loadSample();}
     else if(act==="speak"){speak();}
+    else if(act==="togglePad"){togglePad();}
+    else if(act==="clearPad"){clearPad();}
     else if(act==="closeModal"){closeModal();}
   });
   document.getElementById("modalBox").addEventListener("click",function(e){
